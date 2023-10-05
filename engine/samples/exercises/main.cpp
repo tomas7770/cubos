@@ -1,37 +1,40 @@
-#include <cubos/engine/cubos.hpp>
 #include <cubos/engine/renderer/plugin.hpp>
 #include <cubos/engine/renderer/point_light.hpp>
 #include <cubos/engine/renderer/environment.hpp>
 #include <cubos/engine/transform/plugin.hpp>
 #include <cubos/engine/settings/settings.hpp>
+#include <cubos/engine/voxels/plugin.hpp>
 
 using cubos::core::ecs::Commands;
+using cubos::core::ecs::Read;
 using cubos::core::ecs::Write;
 
 using namespace cubos::engine;
 
-static void setPaletteSystem(Write<Renderer> renderer)
+static const Asset<VoxelGrid> CastleAsset = AnyAsset("fcb15958-8fb4-4d2b-8c8b-607b231729cf");
+static const Asset<VoxelPalette> PaletteAsset = AnyAsset("3e3b90da-59a2-4cea-8cf9-bb2904abb7e9");
+
+static void setPaletteSystem(Write<Renderer> renderer, Read<Assets> assets)
 {
-    (*renderer)->setPalette(VoxelPalette{{
-        {{1, 0, 0, 1}},
-        {{0, 1, 0, 1}},
-        {{0, 0, 1, 1}},
-    }});
+    auto palette = assets->read(PaletteAsset);
+    (*renderer)->setPalette(*palette);
 }
 
-static void spawnVoxelGridSystem(Commands commands, Write<Assets> assets)
+static void spawnCastleSystem(Commands commands, Read<Assets> assets)
 {
-    // Create a 2x2x2 voxel grid with a red cube on a corner
-    auto gridAsset = assets->create(VoxelGrid{{2, 2, 2}, {1, 0, 0, 0, 0, 0, 0, 0}});
+    // Load castle model
+    auto castle = assets->read(CastleAsset);
+    // Calculate the necessary offset to center the model on (0, 0, 0).
+    glm::vec3 offset = glm::vec3(castle->size().x, castle->size().y, castle->size().z) / -2.0F;
 
-    commands.create(RenderableGrid{gridAsset, {-1.0f, 0.0f, -1.0f}}, LocalToWorld{});
+    commands.create(RenderableGrid{CastleAsset, offset}, LocalToWorld{});
 }
 
 static void spawnLightSystem(Commands commands)
 {
     commands.create(
-        PointLight{.color = {1.0f, 1.0f, 1.0f}, .intensity = 1.0f, .range = 10.0f},
-        Position{{1.0f, 3.0f, -2.0f}}
+        PointLight{.color = {1.0f, 1.0f, 1.0f}, .intensity = 10.0f, .range = 100.0f},
+        Position{{10.0f, 30.0f, -20.0f}}
     );
 }
 
@@ -46,17 +49,15 @@ static void spawnCameraSystem(Commands commands, Write<ActiveCameras> cameras)
 {
     cameras->entities[0] = commands.create(
         Camera{.fovY = 60.0f, .zNear = 0.1f, .zFar = 100.0f},
-        Position{{-3.0f, 1.0f, -3.0f}},
-        Rotation{glm::quatLookAt(glm::normalize(glm::vec3{1.0f, 0.0f, 1.0f}),
+        Position{{-30.0f, 10.0f, -30.0f}},
+        Rotation{glm::quatLookAt(glm::normalize(glm::vec3{30.0f, -10.0f, 30.0f}),
             glm::vec3{0.0f, 1.0f, 0.0f})}
     ).entity();
 }
 
 static void settingsSystem(Write<Settings> settings)
 {
-    // We don't load assets in this sample and we don't even have an assets folder, so we should
-    // disable assets IO.
-    settings->setBool("assets.io.enabled", false);
+    settings->setString("assets.io.path", SAMPLE_ASSETS_FOLDER);
 }
 
 int main()
@@ -64,14 +65,15 @@ int main()
     Cubos cubos{};
 
     cubos.addPlugin(rendererPlugin);
+    cubos.addPlugin(voxelsPlugin);
 
     cubos.startupSystem(settingsSystem).tagged("cubos.settings");
 
     cubos.startupSystem(setPaletteSystem).after("cubos.renderer.init");
-    cubos.startupSystem(spawnVoxelGridSystem);
     cubos.startupSystem(spawnLightSystem);
     cubos.startupSystem(setEnvironmentSystem);
     cubos.startupSystem(spawnCameraSystem);
+    cubos.startupSystem(spawnCastleSystem).tagged("cubos.assets");
 
     cubos.run();
 }
