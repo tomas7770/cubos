@@ -7,9 +7,9 @@
 #include <set>
 #include <string>
 
-#include <cubos/core/ecs/dispatcher.hpp>
-#include <cubos/core/ecs/event_pipe.hpp>
-#include <cubos/core/ecs/system.hpp>
+#include <cubos/core/ecs/system/dispatcher.hpp>
+#include <cubos/core/ecs/system/event/pipe.hpp>
+#include <cubos/core/ecs/system/system.hpp>
 #include <cubos/core/ecs/world.hpp>
 
 namespace cubos::engine
@@ -22,7 +22,8 @@ namespace cubos::engine
     struct DeltaTime
     {
         DeltaTime(float value);
-        float value;
+
+        float value; ///< Time in seconds.
     };
 
     /// @brief Resource used as a flag to indicate whether the main loop should stop running.
@@ -33,7 +34,8 @@ namespace cubos::engine
     struct ShouldQuit
     {
         ShouldQuit(bool value);
-        bool value;
+
+        bool value; ///< Whether the main loop should stop running.
     };
 
     /// @brief Resource which stores the command-line arguments.
@@ -44,7 +46,8 @@ namespace cubos::engine
     struct Arguments
     {
         Arguments(std::vector<std::string> value);
-        const std::vector<std::string> value;
+
+        const std::vector<std::string> value; ///< Command-line arguments.
     };
 
     /// @brief Used to chain configurations related to tags.

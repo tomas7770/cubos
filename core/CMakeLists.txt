@@ -47,11 +47,13 @@ set(CUBOS_CORE_SOURCE
     "src/cubos/core/data/old/binary_serializer.cpp"
     "src/cubos/core/data/old/binary_deserializer.cpp"
     "src/cubos/core/data/old/package.cpp"
+    "src/cubos/core/data/old/context.cpp"
+
     "src/cubos/core/data/fs/file.cpp"
     "src/cubos/core/data/fs/file_system.cpp"
     "src/cubos/core/data/fs/standard_archive.cpp"
     "src/cubos/core/data/fs/embedded_archive.cpp"
-    "src/cubos/core/data/old/context.cpp"
+    "src/cubos/core/data/ser/serializer.cpp"
 
     "src/cubos/core/io/window.cpp"
     "src/cubos/core/io/cursor.cpp"
@@ -70,14 +72,16 @@ set(CUBOS_CORE_SOURCE
     "src/cubos/core/al/oal_audio_device.cpp"
     "src/cubos/core/al/oal_audio_device.hpp"
 
-    "src/cubos/core/ecs/entity_manager.cpp"
-    "src/cubos/core/ecs/component_manager.cpp"
-    "src/cubos/core/ecs/commands.cpp"
+    "src/cubos/core/ecs/entity/entity.cpp"
+    "src/cubos/core/ecs/entity/hash.cpp"
+    "src/cubos/core/ecs/entity/manager.cpp"
+    "src/cubos/core/ecs/component/registry.cpp"
+    "src/cubos/core/ecs/component/manager.cpp"
+    "src/cubos/core/ecs/system/system.cpp"
+    "src/cubos/core/ecs/system/dispatcher.cpp"
+    "src/cubos/core/ecs/system/commands.cpp"
     "src/cubos/core/ecs/blueprint.cpp"
     "src/cubos/core/ecs/world.cpp"
-    "src/cubos/core/ecs/system.cpp"
-    "src/cubos/core/ecs/dispatcher.cpp"
-    "src/cubos/core/ecs/registry.cpp"
 )
 
 # Create core library
