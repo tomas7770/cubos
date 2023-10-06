@@ -5,9 +5,12 @@
 #include <cubos/engine/settings/settings.hpp>
 #include <cubos/engine/voxels/plugin.hpp>
 
+#include "components.hpp"
+
 using cubos::core::ecs::Commands;
 using cubos::core::ecs::Read;
 using cubos::core::ecs::Write;
+using cubos::core::ecs::Query;
 
 using namespace cubos::engine;
 
@@ -27,7 +30,7 @@ static void spawnCastleSystem(Commands commands, Read<Assets> assets)
     // Calculate the necessary offset to center the model on (0, 0, 0).
     glm::vec3 offset = glm::vec3(castle->size().x, castle->size().y, castle->size().z) / -2.0F;
 
-    commands.create(RenderableGrid{CastleAsset, offset}, LocalToWorld{});
+    commands.create(RenderableGrid{CastleAsset, offset}, LocalToWorld{}, Rotation{}, AutoRotation{});
 }
 
 static void spawnLightSystem(Commands commands)
@@ -60,12 +63,22 @@ static void settingsSystem(Write<Settings> settings)
     settings->setString("assets.io.path", SAMPLE_ASSETS_FOLDER);
 }
 
+static void castleRotateSystem(Query<Write<Rotation>, Read<AutoRotation>> query, Read<DeltaTime> dt)
+{
+    for (auto [entity, rotation, auto_rotation] : query)
+    {
+        rotation->quat = glm::cross(rotation->quat, glm::quat(glm::vec3{0.0f, dt->value, 0.0f}));
+    }
+}
+
 int main()
 {
     Cubos cubos{};
 
     cubos.addPlugin(rendererPlugin);
     cubos.addPlugin(voxelsPlugin);
+
+    cubos.addComponent<AutoRotation>();
 
     cubos.startupSystem(settingsSystem).tagged("cubos.settings");
 
@@ -74,6 +87,8 @@ int main()
     cubos.startupSystem(setEnvironmentSystem);
     cubos.startupSystem(spawnCameraSystem);
     cubos.startupSystem(spawnCastleSystem).tagged("cubos.assets");
+
+    cubos.system(castleRotateSystem);
 
     cubos.run();
 }
