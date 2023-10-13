@@ -1,5 +1,5 @@
 #pragma once
 
-struct [[cubos::component("auto_rotation")]] AutoRotation
+struct [[cubos::component("input_rotation")]] InputRotation
 {
 };

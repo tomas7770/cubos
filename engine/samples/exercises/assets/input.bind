@@ -1,0 +1,40 @@
+{
+    "actions": {
+        "next": {
+            "keys": [
+                "Return"
+            ],
+            "gamepad": [
+                "RBumper"
+            ]
+        }
+    },
+    "axes": {
+        "vertical": {
+            "pos": [
+                "w",
+                "Up"
+            ],
+            "neg": [
+                "s",
+                "Down"
+            ],
+            "gamepad": [
+                "LY"
+            ]
+        },
+        "horizontal": {
+            "pos": [
+                "d",
+                "Right"
+            ],
+            "neg": [
+                "a",
+                "Left"
+            ],
+            "gamepad": [
+                "LX"
+            ]
+        }
+    }
+}
