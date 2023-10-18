@@ -5,6 +5,7 @@
 #include <cubos/engine/settings/settings.hpp>
 #include <cubos/engine/voxels/plugin.hpp>
 #include <cubos/engine/input/plugin.hpp>
+#include <cubos/engine/scene/plugin.hpp>
 
 #include "components.hpp"
 
@@ -15,9 +16,9 @@ using cubos::core::ecs::Query;
 
 using namespace cubos::engine;
 
-static const Asset<VoxelGrid> CastleAsset = AnyAsset("fcb15958-8fb4-4d2b-8c8b-607b231729cf");
 static const Asset<VoxelPalette> PaletteAsset = AnyAsset("3e3b90da-59a2-4cea-8cf9-bb2904abb7e9");
 static const Asset<InputBindings> BindingsAsset = AnyAsset("bf49ba61-5103-41bc-92e0-8a442d7842c3");
+static const Asset<Scene> SceneAsset = AnyAsset("721bcf51-7c68-42ab-a0ae-6212f299c214");
 
 static void setPaletteSystem(Write<Renderer> renderer, Read<Assets> assets)
 {
@@ -25,22 +26,11 @@ static void setPaletteSystem(Write<Renderer> renderer, Read<Assets> assets)
     (*renderer)->setPalette(*palette);
 }
 
-static void spawnCastleSystem(Commands commands, Read<Assets> assets)
+static void spawnSceneSystem(Commands commands, Read<Assets> assets)
 {
-    // Load castle model
-    auto castle = assets->read(CastleAsset);
-    // Calculate the necessary offset to center the model on (0, 0, 0).
-    glm::vec3 offset = glm::vec3(castle->size().x, castle->size().y, castle->size().z) / -2.0F;
-
-    commands.create(RenderableGrid{CastleAsset, offset}, LocalToWorld{}, Rotation{}, InputRotation{});
-}
-
-static void spawnLightSystem(Commands commands)
-{
-    commands.create(
-        PointLight{.color = {1.0f, 1.0f, 1.0f}, .intensity = 4.0f, .range = 100.0f},
-        Position{{10.0f, 30.0f, -20.0f}}
-    );
+    // Load scene
+    auto scene = assets->read(SceneAsset);
+    commands.spawn(scene->blueprint);
 }
 
 static void setEnvironmentSystem(Write<RendererEnvironment> env)
@@ -53,8 +43,8 @@ static void setEnvironmentSystem(Write<RendererEnvironment> env)
 static void spawnCameraSystem(Commands commands, Write<ActiveCameras> cameras)
 {
     cameras->entities[0] = commands.create(
-        Camera{.fovY = 60.0f, .zNear = 0.1f, .zFar = 100.0f},
-        Position{{0.0f, 10.0f, -45.0f}},
+        Camera{.fovY = 60.0f, .zNear = 0.1f, .zFar = 1000.0f},
+        Position{{0.0f, 20.0f, -90.0f}},
         Rotation{glm::quatLookAt(glm::normalize(glm::vec3{0.0f, -10.0f, 45.0f}),
             glm::vec3{0.0f, 1.0f, 0.0f})}
     ).entity();
@@ -91,16 +81,16 @@ int main()
     cubos.addPlugin(rendererPlugin);
     cubos.addPlugin(voxelsPlugin);
     cubos.addPlugin(inputPlugin);
+    cubos.addPlugin(scenePlugin);
 
     cubos.addComponent<InputRotation>();
 
     cubos.startupSystem(settingsSystem).tagged("cubos.settings");
 
     cubos.startupSystem(setPaletteSystem).after("cubos.renderer.init");
-    cubos.startupSystem(spawnLightSystem);
     cubos.startupSystem(setEnvironmentSystem);
     cubos.startupSystem(spawnCameraSystem);
-    cubos.startupSystem(spawnCastleSystem).tagged("cubos.assets");
+    cubos.startupSystem(spawnSceneSystem).tagged("cubos.assets");
     cubos.startupSystem(initInputSystem).tagged("cubos.assets");
 
     cubos.system(castleRotateSystem);

@@ -1,0 +1,49 @@
+{
+  "imports": {},
+  "entities": {
+    "light": {
+      "cubos/point_light": {
+        "color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0
+        },
+        "intensity": 4,
+        "range": 100
+      },
+      "cubos/position": {
+        "x": 10,
+        "y": 30,
+        "z": -20
+      }
+    },
+    "castle": {
+      "cubos/renderable_grid": {
+        "asset": "fcb15958-8fb4-4d2b-8c8b-607b231729cf",
+        "offset": {
+          "x": -10.5,
+          "y": -10.5,
+          "z": -10.5
+        }
+      },
+      "cubos/rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "input_rotation": {}
+    },
+    "terrain": {
+      "cubos/renderable_grid": {
+        "asset": "c2c392e0-0dcf-42e8-a75a-a8590ec639c1",
+        "offset": {
+          "x": -20,
+          "y": -20,
+          "z": -20
+        }
+      },
+      "cubos/scale": 3.0
+    }
+  }
+}
